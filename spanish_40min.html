@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🇪🇸 スペイン語 40分聞き流し</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0c0c10;color:#f0f0f5;min-height:100vh}
+body{padding-bottom:48px}
+
+#unlock-screen{
+  position:fixed;inset:0;background:#0c0c10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:100;padding:32px;text-align:center
+}
+#unlock-screen .logo{font-size:52px;margin-bottom:16px}
+#unlock-screen h2{font-size:22px;font-weight:700;margin-bottom:10px}
+#unlock-screen p{font-size:14px;color:#8e8e93;line-height:1.7;margin-bottom:32px}
+#unlock-btn{
+  background:#007aff;color:#fff;border:none;border-radius:16px;
+  padding:18px 0;font-size:18px;font-weight:700;cursor:pointer;width:100%;max-width:320px
+}
+.warn{font-size:12px;color:#ff9500;margin-top:16px;line-height:1.6;display:none}
+
+.header{background:#1c1c1e;padding:14px 16px;border-bottom:1px solid #2c2c2e;position:sticky;top:0;z-index:10}
+.header h1{font-size:17px;font-weight:700}
+.header .sub{font-size:12px;color:#636366;margin-top:2px}
+
+.prog-wrap{background:#1c1c1e;padding:12px 16px;border-bottom:1px solid #2c2c2e}
+.prog-bg{background:#2c2c2e;border-radius:4px;height:5px;margin-bottom:7px}
+.prog-fill{background:#007aff;height:5px;border-radius:4px;width:0%;transition:width 0.6s}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:#636366}
+
+.now{margin:14px 16px 0;background:#1c1c1e;border-radius:16px;padding:18px 16px;border:1px solid #2c2c2e;text-align:center}
+.now-phase{font-size:11px;color:#007aff;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;min-height:16px}
+.now-verb{font-size:12px;color:#636366;margin-bottom:8px;min-height:16px}
+.now-es{font-size:28px;font-weight:700;line-height:1.2;min-height:36px;margin-bottom:6px}
+.now-pron{font-size:13px;color:#48484a;font-style:italic;min-height:18px;margin-bottom:4px}
+.now-sub{font-size:15px;color:#aeaeb2;min-height:22px}
+
+.ctrls{display:flex;align-items:center;justify-content:center;gap:18px;margin:16px 16px 0}
+.cbtn{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cbtn:active{opacity:.7}
+.cbtn.prev,.cbtn.next{width:50px;height:50px;background:#2c2c2e;font-size:18px}
+.cbtn.playpause{width:66px;height:66px;background:#007aff;font-size:28px}
+.cbtn.playpause.paused{background:#2c2c2e}
+
+.speed-row{
+  display:flex;align-items:center;gap:10px;
+  margin:14px 16px 0;background:#1c1c1e;border-radius:12px;padding:11px 14px
+}
+.speed-row label{font-size:13px;color:#636366;white-space:nowrap}
+.speed-row input{flex:1;accent-color:#007aff}
+.speed-row span{font-size:13px;font-weight:600;min-width:38px;color:#f0f0f5}
+
+.opts{display:flex;gap:8px;margin:10px 16px 0}
+.obtn{
+  flex:1;padding:9px 4px;border-radius:10px;border:1px solid #2c2c2e;
+  background:#1c1c1e;color:#636366;font-size:12px;cursor:pointer;text-align:center
+}
+.obtn.on{background:#003a8c;color:#64a8ff;border-color:#007aff}
+
+.sec-title{font-size:11px;font-weight:600;color:#636366;padding:16px 16px 8px;text-transform:uppercase;letter-spacing:.06em}
+
+.vlist{margin:0 16px;display:flex;flex-direction:column;gap:6px}
+.vitem{
+  background:#1c1c1e;border-radius:12px;padding:11px 14px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;border:1px solid #2c2c2e
+}
+.vitem.active{border-color:#007aff;background:#001e4d}
+.vitem.done .vi-inf{opacity:.4}
+.vi-n{font-size:11px;color:#48484a;width:18px;text-align:center;flex-shrink:0}
+.vi-inf{font-size:15px;font-weight:700;font-style:italic;flex:1}
+.vi-jp{font-size:11px;color:#636366}
+.vi-tag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;flex-shrink:0}
+.vi-tag.ar{background:#2e2000;color:#ffd60a}
+.vi-tag.er{background:#001233;color:#4da3ff}
+.vi-tag.ir{background:#001a09;color:#30d158}
+.vi-tag.irr{background:#2e0000;color:#ff6b6b;margin-left:-4px}
+.vi-done{font-size:14px;flex-shrink:0}
+
+.qlist{margin:0 16px}
+.qitem{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 0;border-bottom:1px solid #1c1c1e;font-size:13px
+}
+.qitem:last-child{border-bottom:none}
+.qi-dot{width:6px;height:6px;border-radius:50%;background:#2c2c2e;flex-shrink:0}
+.qitem.qi-active .qi-dot{background:#007aff}
+.qitem.qi-done .qi-dot{background:#30d158}
+.qi-es{flex:1;color:#aeaeb2}
+.qitem.qi-active .qi-es{color:#f0f0f5;font-weight:600}
+.qi-label{font-size:10px;color:#48484a;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div id="unlock-screen">
+  <div class="logo">🇪🇸</div>
+  <h2>スペイン語 40分聞き流し</h2>
+  <p>基本動詞8つの現在形活用を<br>ゆっくり→普通速度で繰り返し練習<br>例文はスペイン語→英語の順で読み上げ</p>
+  <button id="unlock-btn" onclick="startApp()">▶ タップしてスタート</button>
+  <p class="warn" id="voice-warn">⚠ スペイン語音声が見つかりません<br>設定→アクセシビリティ→読み上げコンテンツ<br>→声→スペイン語（スペイン）を追加してください</p>
+</div>
+
+<div id="app" style="display:none">
+  <div class="header">
+    <h1>🇪🇸 スペイン語 40分聞き流し</h1>
+    <div class="sub">基本動詞8つ・現在形活用マスター</div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-bg"><div class="prog-fill" id="prog"></div></div>
+    <div class="prog-meta"><span id="prog-text">0 / 0</span><span id="time-left">残り約40分</span></div>
+  </div>
+
+  <div class="now">
+    <div class="now-phase" id="np-phase"></div>
+    <div class="now-verb" id="np-verb"></div>
+    <div class="now-es" id="np-es">▶ 再生ボタンを押してスタート</div>
+    <div class="now-pron" id="np-pron"></div>
+    <div class="now-sub" id="np-sub"></div>
+  </div>
+
+  <div class="ctrls">
+    <button class="cbtn prev" onclick="skip(-1)">⏮</button>
+    <button class="cbtn playpause paused" id="play-btn" onclick="togglePlay()">▶</button>
+    <button class="cbtn next" onclick="skip(1)">⏭</button>
+  </div>
+
+  <div class="speed-row">
+    <label>スピード</label>
+    <input type="range" id="speed-sl" min="0.4" max="1.2" step="0.05" value="0.75"
+      oninput="onSpeedChange(this.value)">
+    <span id="sv">0.75x</span>
+  </div>
+
+  <div class="opts">
+    <button class="obtn on" id="opt-slow" onclick="toggle('slow')">🐢 ゆっくり先読み</button>
+    <button class="obtn on" id="opt-en" onclick="toggle('en')">🔤 英語訳あり</button>
+    <button class="obtn" id="opt-loop" onclick="toggle('loop')">🔁 ループ</button>
+  </div>
+
+  <div class="sec-title">動詞リスト</div>
+  <div class="vlist" id="vlist"></div>
+
+  <div class="sec-title">現在のキュー</div>
+  <div class="qlist" id="qlist"></div>
+</div>
+
+<script>
+/* ─────────────────────────────────────
+   データ
+───────────────────────────────────── */
+const VERBS = [
+  {
+    inf:"hablar", jp:"話す", type:"ar", irreg:false,
+    conjs:[
+      {pro:"yo",       es:"hablo",    pron:"アブロ"},
+      {pro:"tú",       es:"hablas",   pron:"アブラス"},
+      {pro:"él/ella",  es:"habla",    pron:"アブラ"},
+      {pro:"nosotros", es:"hablamos", pron:"アブラモス"},
+      {pro:"vosotros", es:"habláis",  pron:"アブライス"},
+      {pro:"ellos",    es:"hablan",   pron:"アブラン"},
+    ],
+    example:{es:"Hablo español todos los días.", en:"I speak Spanish every day."}
+  },
+  {
+    inf:"comer", jp:"食べる", type:"er", irreg:false,
+    conjs:[
+      {pro:"yo",       es:"como",    pron:"コモ"},
+      {pro:"tú",       es:"comes",   pron:"コメス"},
+      {pro:"él/ella",  es:"come",    pron:"コメ"},
+      {pro:"nosotros", es:"comemos", pron:"コメモス"},
+      {pro:"vosotros", es:"coméis",  pron:"コメイス"},
+      {pro:"ellos",    es:"comen",   pron:"コメン"},
+    ],
+    example:{es:"Como arroz todos los días.", en:"I eat rice every day."}
+  },
+  {
+    inf:"vivir", jp:"住む・生きる", type:"ir", irreg:false,
+    conjs:[
+      {pro:"yo",       es:"vivo",    pron:"ビボ"},
+      {pro:"tú",       es:"vives",   pron:"ビベス"},
+      {pro:"él/ella",  es:"vive",    pron:"ビベ"},
+      {pro:"nosotros", es:"vivimos", pron:"ビビモス"},
+      {pro:"vosotros", es:"vivís",   pron:"ビビス"},
+      {pro:"ellos",    es:"viven",   pron:"ビベン"},
+    ],
+    example:{es:"Vivo en Tokio.", en:"I live in Tokyo."}
+  },
+  {
+    inf:"ser", jp:"〜である（性質）", type:"ir", irreg:true,
+    conjs:[
+      {pro:"yo",       es:"soy",   pron:"ソイ"},
+      {pro:"tú",       es:"eres",  pron:"エレス"},
+      {pro:"él/ella",  es:"es",    pron:"エス"},
+      {pro:"nosotros", es:"somos", pron:"ソモス"},
+      {pro:"vosotros", es:"sois",  pron:"ソイス"},
+      {pro:"ellos",    es:"son",   pron:"ソン"},
+    ],
+    example:{es:"Soy estudiante de japonés.", en:"I am a Japanese student."}
+  },
+  {
+    inf:"estar", jp:"〜である（状態）", type:"ar", irreg:true,
+    conjs:[
+      {pro:"yo",       es:"estoy",   pron:"エストイ"},
+      {pro:"tú",       es:"estás",   pron:"エスタス"},
+      {pro:"él/ella",  es:"está",    pron:"エスタ"},
+      {pro:"nosotros", es:"estamos", pron:"エスタモス"},
+      {pro:"vosotros", es:"estáis",  pron:"エスタイス"},
+      {pro:"ellos",    es:"están",   pron:"エスタン"},
+    ],
+    example:{es:"Estoy muy bien, gracias.", en:"I am very well, thank you."}
+  },
+  {
+    inf:"tener", jp:"持つ", type:"er", irreg:true,
+    conjs:[
+      {pro:"yo",       es:"tengo",   pron:"テンゴ"},
+      {pro:"tú",       es:"tienes",  pron:"ティエネス"},
+      {pro:"él/ella",  es:"tiene",   pron:"ティエネ"},
+      {pro:"nosotros", es:"tenemos", pron:"テネモス"},
+      {pro:"vosotros", es:"tenéis",  pron:"テネイス"},
+      {pro:"ellos",    es:"tienen",  pron:"ティエネン"},
+    ],
+    example:{es:"Tengo muchas ganas de aprender.", en:"I really want to learn."}
+  },
+  {
+    inf:"ir", jp:"行く", type:"ir", irreg:true,
+    conjs:[
+      {pro:"yo",       es:"voy",  pron:"ボイ"},
+      {pro:"tú",       es:"vas",  pron:"バス"},
+      {pro:"él/ella",  es:"va",   pron:"バ"},
+      {pro:"nosotros", es:"vamos",pron:"バモス"},
+      {pro:"vosotros", es:"vais", pron:"バイス"},
+      {pro:"ellos",    es:"van",  pron:"バン"},
+    ],
+    example:{es:"Vamos a la playa este verano.", en:"We are going to the beach this summer."}
+  },
+  {
+    inf:"querer", jp:"欲しい・愛する", type:"er", irreg:true,
+    conjs:[
+      {pro:"yo",       es:"quiero",  pron:"キエロ"},
+      {pro:"tú",       es:"quieres", pron:"キエレス"},
+      {pro:"él/ella",  es:"quiere",  pron:"キエレ"},
+      {pro:"nosotros", es:"queremos",pron:"ケレモス"},
+      {pro:"vosotros", es:"queréis", pron:"ケレイス"},
+      {pro:"ellos",    es:"quieren", pron:"キエレン"},
+    ],
+    example:{es:"Quiero aprender español bien.", en:"I want to learn Spanish well."}
+  },
+];
+
+/* ─────────────────────────────────────
+   キュー生成
+   各動詞のブロック構成（1周 ≈ 5分）：
+   [round1] verb名読み上げ → 6人称(ゆっくり) → 例文ES → 例文EN
+   [round2] 6人称(普通速度) → 例文ES → 例文EN
+   [round3] 6人称(普通速度) → 例文ES → 例文EN  ← 計3周
+───────────────────────────────────── */
+function buildQueue(opts) {
+  const q = [];
+  const SLOW = 0.55; // ゆっくり倍率係数（base speedに掛ける）
+
+  VERBS.forEach((v, vi) => {
+    // ラウンド1：ゆっくり（オプションで）
+    if (opts.slow) {
+      q.push({type:'announce', vi, text:`${v.inf}。${v.jp}。`, es:v.inf, pron:'', sub:v.jp, phase:'ゆっくり', verb:v.inf, slowMul:1});
+      v.conjs.forEach(c => {
+        q.push({type:'conj', vi, text:`${c.pro} ${c.es}`, es:c.es, pron:c.pron, sub:c.pro, phase:'ゆっくり', verb:v.inf, slowMul:SLOW});
+      });
+      q.push({type:'example_es', vi, text:v.example.es, es:v.example.es, pron:'', sub:'例文', phase:'ゆっくり', verb:v.inf, slowMul:SLOW});
+      if (opts.en) q.push({type:'example_en', vi, text:v.example.en, es:v.example.en, pron:'', sub:'English', phase:'ゆっくり', verb:v.inf, slowMul:1, lang:'en-US'});
+      q.push({type:'pause', vi, dur:900, es:'…', pron:'', sub:'', phase:'', verb:v.inf, slowMul:1});
+    }
+
+    // ラウンド2・3：普通速度 × 2周
+    for (let round = 0; round < 2; round++) {
+      const label = opts.slow ? `通常速度 (${round+1}/2)` : `練習 (${round+1}/2)`;
+      if (round === 0) {
+        q.push({type:'announce', vi, text:`${v.inf}。`, es:v.inf, pron:'', sub:v.jp, phase:label, verb:v.inf, slowMul:1});
+      }
+      v.conjs.forEach(c => {
+        q.push({type:'conj', vi, text:`${c.pro} ${c.es}`, es:c.es, pron:c.pron, sub:c.pro, phase:label, verb:v.inf, slowMul:1});
+      });
+      q.push({type:'example_es', vi, text:v.example.es, es:v.example.es, pron:'', sub:'例文', phase:label, verb:v.inf, slowMul:1});
+      if (opts.en) q.push({type:'example_en', vi, text:v.example.en, es:v.example.en, pron:'', sub:'English', phase:label, verb:v.inf, slowMul:1, lang:'en-US'});
+      q.push({type:'pause', vi, dur:700, es:'…', pron:'', sub:'', phase:'', verb:v.inf, slowMul:1});
+    }
+
+    q.push({type:'break', vi, dur:1200, es:'', pron:'', sub:'', phase:'', verb:v.inf, slowMul:1});
+  });
+  return q;
+}
+
+/* ─────────────────────────────────────
+   状態
+───────────────────────────────────── */
+let opts = {slow:true, en:true, loop:false};
+let queue = [];
+let cursor = 0;
+let speed = 0.75;
+let playing = false;
+let unlocked = false;
+let stopFlag = false;
+
+function startApp() {
+  // iOSアンロック：無音発話
+  const dummy = new SpeechSynthesisUtterance(' ');
+  dummy.volume = 0; dummy.lang = 'es-ES';
+  speechSynthesis.speak(dummy);
+  unlocked = true;
+
+  document.getElementById('unlock-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // 音声チェック
+  setTimeout(() => {
+    if (!getVoice()) document.getElementById('voice-warn').style.display = 'block';
+  }, 800);
+
+  queue = buildQueue(opts);
+  renderVerbList();
+  renderQueue();
+  updateProgress();
+}
+
+/* ─────────────────────────────────────
+   音声
+───────────────────────────────────── */
+function getVoice(lang) {
+  const vs = speechSynthesis.getVoices();
+  if (lang && lang !== 'es-ES') {
+    return vs.find(v => v.lang === lang) || vs.find(v => v.lang.startsWith(lang.split('-')[0])) || null;
+  }
+  return vs.find(v => v.lang === 'es-ES')
+      || vs.find(v => v.lang === 'es-MX')
+      || vs.find(v => v.lang.startsWith('es'))
+      || null;
+}
+
+function speakOne(item) {
+  return new Promise(res => {
+    if (item.type === 'pause' || item.type === 'break') {
+      setTimeout(res, item.dur);
+      return;
+    }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(item.text);
+    const lang = item.lang || 'es-ES';
+    u.lang = lang;
+    u.rate = Math.max(0.3, speed * (item.slowMul || 1));
+    const v = getVoice(lang);
+    if (v) u.voice = v;
+    u.onend = res;
+    u.onerror = res;
+    speechSynthesis.speak(u);
+  });
+}
+
+/* ─────────────────────────────────────
+   再生ループ
+───────────────────────────────────── */
+async function runLoop() {
+  stopFlag = false;
+  while (!stopFlag) {
+    if (cursor >= queue.length) {
+      if (opts.loop) { cursor = 0; }
+      else { stopFlag = true; break; }
+    }
+    const item = queue[cursor];
+    showNowPlaying(item);
+    updateProgress();
+    renderQueue();
+    await speakOne(item);
+    if (stopFlag) break;
+    cursor++;
+  }
+  if (!stopFlag) {
+    setPlayState(false);
+  }
+}
+
+function setPlayState(p) {
+  playing = p;
+  const btn = document.getElementById('play-btn');
+  btn.textContent = p ? '⏸' : '▶';
+  btn.classList.toggle('paused', !p);
+}
+
+async function togglePlay() {
+  if (playing) {
+    stopFlag = true;
+    speechSynthesis.cancel();
+    setPlayState(false);
+  } else {
+    setPlayState(true);
+    runLoop();
+  }
+}
+
+function skip(dir) {
+  const wasPlaying = playing;
+  stopFlag = true;
+  speechSynthesis.cancel();
+  cursor = Math.max(0, Math.min(queue.length - 1, cursor + dir * 7));
+  // 先頭に揃える：同じ動詞ブロックの最初へ
+  if (wasPlaying) {
+    stopFlag = false;
+    setPlayState(true);
+    runLoop();
+  } else {
+    if (queue[cursor]) showNowPlaying(queue[cursor]);
+    updateProgress();
+    renderQueue();
+  }
+}
+
+/* ─────────────────────────────────────
+   UI更新
+───────────────────────────────────── */
+function showNowPlaying(item) {
+  document.getElementById('np-phase').textContent = item.phase || '';
+  document.getElementById('np-verb').textContent = item.verb ? `${item.verb} ／ ${VERBS[item.vi]?.jp||''}` : '';
+  document.getElementById('np-es').textContent = item.es || '';
+  document.getElementById('np-pron').textContent = item.pron || '';
+  const subMap = {
+    'conj': item.sub,
+    'example_es': '📝 例文',
+    'example_en': '🔤 English',
+    'announce': '',
+    'pause': '',
+    'break': '',
+  };
+  document.getElementById('np-sub').textContent = subMap[item.type] ?? item.sub ?? '';
+  // アクティブ動詞をリストで強調
+  document.querySelectorAll('.vitem').forEach((el, i) => {
+    el.classList.toggle('active', i === item.vi);
+  });
+}
+
+function updateProgress() {
+  const total = queue.length;
+  const pct = total ? Math.round(cursor / total * 100) : 0;
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `${cursor} / ${total}`;
+  // 残り時間推定（1アイテム平均2.5秒）
+  const rem = Math.round((total - cursor) * 2.5 / 60);
+  document.getElementById('time-left').textContent = `残り約${rem}分`;
+}
+
+function renderVerbList() {
+  const el = document.getElementById('vlist');
+  el.innerHTML = '';
+  VERBS.forEach((v, i) => {
+    const typeTag = `<span class="vi-tag ${v.type}">${v.type}</span>`;
+    const irregTag = v.irreg ? `<span class="vi-tag irr">不規則</span>` : '';
+    const d = document.createElement('div');
+    d.className = 'vitem';
+    d.id = `vi-${i}`;
+    d.innerHTML = `
+      <span class="vi-n">${i+1}</span>
+      <span class="vi-inf">${v.inf}</span>
+      <span class="vi-jp">${v.jp}</span>
+      ${typeTag}${irregTag}
+    `;
+    d.onclick = () => jumpToVerb(i);
+    el.appendChild(d);
+  });
+}
+
+function jumpToVerb(vi) {
+  const idx = queue.findIndex(q => q.vi === vi);
+  if (idx < 0) return;
+  const wasPlaying = playing;
+  stopFlag = true;
+  speechSynthesis.cancel();
+  cursor = idx;
+  if (wasPlaying) {
+    stopFlag = false;
+    setPlayState(true);
+    runLoop();
+  } else {
+    showNowPlaying(queue[cursor]);
+    updateProgress();
+    renderQueue();
+  }
+}
+
+function renderQueue() {
+  const el = document.getElementById('qlist');
+  // 現在動詞の周辺アイテムだけ表示（前2・後10）
+  const start = Math.max(0, cursor - 2);
+  const end = Math.min(queue.length, cursor + 10);
+  let html = '';
+  for (let i = start; i < end; i++) {
+    const item = queue[i];
+    if (item.type === 'pause' || item.type === 'break') continue;
+    const cls = i < cursor ? 'qi-done' : i === cursor ? 'qi-active' : '';
+    const labelMap = {
+      'announce':'動詞名', 'conj':item.sub || '',
+      'example_es':'例文 ES', 'example_en':'例文 EN'
+    };
+    const label = labelMap[item.type] || '';
+    html += `<div class="qitem ${cls}">
+      <span class="qi-dot"></span>
+      <span class="qi-es">${item.es || ''}</span>
+      <span class="qi-label">${label}</span>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+/* ─────────────────────────────────────
+   オプション
+───────────────────────────────────── */
+function toggle(key) {
+  opts[key] = !opts[key];
+  document.getElementById(`opt-${key}`).classList.toggle('on', opts[key]);
+  // キューを再生成
+  const wasPlaying = playing;
+  stopFlag = true;
+  speechSynthesis.cancel();
+  // 現在の動詞インデックスを保存
+  const curVi = queue[cursor]?.vi || 0;
+  queue = buildQueue(opts);
+  cursor = queue.findIndex(q => q.vi === curVi);
+  if (cursor < 0) cursor = 0;
+  renderVerbList();
+  renderQueue();
+  updateProgress();
+  if (wasPlaying) {
+    stopFlag = false;
+    setPlayState(true);
+    runLoop();
+  } else {
+    setPlayState(false);
+  }
+}
+
+function onSpeedChange(val) {
+  speed = parseFloat(val);
+  document.getElementById('sv').textContent = speed.toFixed(2) + 'x';
+}
+
+window.speechSynthesis.onvoiceschanged = () => {
+  if (!unlocked) return;
+  const v = getVoice();
+  if (!v) document.getElementById('voice-warn').style.display = 'block';
+};
+speechSynthesis.getVoices();
+</script>
+</body>
+</html>
